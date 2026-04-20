@@ -403,17 +403,19 @@ class UMDynamicImages
                 $uploadsDir = wp_upload_dir();
 
                 $path = "{$uploadsDir['basedir']}/umich-dynamic-images/";
-                $iterator = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator( $path, FilesystemIterator::SKIP_DOTS ),
-                    RecursiveIteratorIterator::CHILD_FIRST
-                );
+                if( is_dir( $path ) ) {
+                    $iterator = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator( $path, FilesystemIterator::SKIP_DOTS ),
+                        RecursiveIteratorIterator::CHILD_FIRST
+                    );
 
-                foreach( $iterator as $file ) {
-                    if( $file->isDir() ) {
-                        rmdir( $file->getPathname() );
-                    }
-                    else {
-                        unlink( $file->getPathname() );
+                    foreach( $iterator as $file ) {
+                        if( $file->isDir() ) {
+                            rmdir( $file->getPathname() );
+                        }
+                        else {
+                            unlink( $file->getPathname() );
+                        }
                     }
                 }
 
