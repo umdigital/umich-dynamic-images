@@ -1,0 +1,29 @@
+{
+    "name": "umdigital/umich-dynamic-images",
+    "description": "Replaces wordpress built-in pre-built image thumbnails with a dymamic system that creates them on the fly.",
+    "homepage": "https://github.com/umdigital/umich-dynamic-images",
+    "license": [ "MIT" ],
+    "type": "wordpress-plugin",
+    "keywords": [
+        "wordpress",
+        "images",
+        "thumbnails"
+    ],
+    "authors": [
+        {
+            "name": "Patrick Springstubbe",
+            "homepage": "https://github.com/nobleclem"
+        }
+    ],
+    "support": {
+        "docs": "https://github.com/umdigital/umich-dynamic-images",
+        "issues": "https://github.com/umdigital/umich-dynamic-imagesissues",
+        "source": "https://github.com/umdigital/umich-dynamic-images"
+    },
+    "require": {
+        "php": ">=7.4",
+        "umdigital/wordpress-github-updater": "^1.0"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
