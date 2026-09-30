@@ -4,5 +4,7 @@
    - Enable: purge WP resized images
    - Disable: create WP resized images
 [ ] Multisite Support
+   - Routing
+   - Htaccess
 [ ] Pantheon Support
    - e.g. work without mod_rewrite

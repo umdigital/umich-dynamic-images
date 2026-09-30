@@ -3,7 +3,7 @@
  * Plugin Name: University of Michigan: Dynamic Image Resizing
  * Plugin URI: https://github.com/umdigital/umich-dynamic-images/
  * Description: Replaces wordpress built-in pre-built image thumbnails with a dymamic system that creates them on the fly.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: U-M: OVPC Digital
  * Author URI: http://vpcomm.umich.edu
  * Update URI: https://github.com/umdigital/umich-dynamic-images/releases/latest
@@ -18,7 +18,7 @@ class UMDynamicImages
     ];
     static private $_imageExtensions = ['jpg', 'jpeg', 'jpe', 'gif', 'png', 'webp', 'avif', 'heic'];
     static private $_urlPatterns     = [
-        '#(?<path>wp-content/uploads/(umich-dynamic-images/)?[0-9]+/[0-9]+/)(?<file>(.*))(?<suffix>-(?<width>[0-9]+)x(?<height>[0-9]+)(?<crop>c)?)\.(?<extension>{{EXTENSIONS}})$#i'
+        '#(?<path>wp-content/uploads/(sites/[0-9]+/)?(umich-dynamic-images/)?[0-9]+/[0-9]+/)(?<file>(.*))(?<suffix>-(?<width>[0-9]+)x(?<height>[0-9]+)(?<crop>c)?)\.(?<extension>{{EXTENSIONS}})$#i'
     ];
 
     static private $_settings = [];
@@ -105,7 +105,7 @@ class UMDynamicImages
             }
 
             if( $match ) {
-                $uploadsDir = wp_upload_dir();
+                $uploadsDir = self::_getUploadDir();
 
                 $path   = $match['path'];
                 $file   = urldecode( basename( $match['file'] ) );
@@ -192,7 +192,7 @@ class UMDynamicImages
 
         // cleanup
         add_action( self::$_cronHook, function(){
-            $uploadsDir = wp_upload_dir();
+            $uploadsDir = self::_getUploadDir();
 
             $path = "{$uploadsDir['basedir']}/umich-dynamic-images/";
             $iterator = new RecursiveIteratorIterator(
@@ -400,9 +400,14 @@ class UMDynamicImages
         switch( $task ) {
             case 'purge_cache':
                 // purge action here
-                $uploadsDir = wp_upload_dir();
+                $uploadsDir = self::_getUploadDir();
 
                 $path = "{$uploadsDir['basedir']}/umich-dynamic-images/";
+
+                if( is_multisite() && (get_current_blog_id() != get_main_site_id()) ) {
+                    $path .= 'wp-content/uploads/sites/'. get_current_blog_id() .'/';
+                }
+
                 if( is_dir( $path ) ) {
                     $iterator = new RecursiveIteratorIterator(
                         new RecursiveDirectoryIterator( $path, FilesystemIterator::SKIP_DOTS ),
@@ -418,6 +423,8 @@ class UMDynamicImages
                         }
                     }
                 }
+
+                rmdir( $path );
 
                 return true;
                 break;
@@ -492,7 +499,7 @@ class UMDynamicImages
                 $id    = sanitize_text_field( wp_unslash( $params['id'] ) );
                 $fMeta = wp_get_attachment_metadata( $id, true );
 
-                $uploadsDir = wp_upload_dir();
+                $uploadsDir = self::_getUploadDir();
 
                 $files = [];
                 if( $fMeta && @$fMeta['sizes'] ) {
@@ -527,6 +534,21 @@ class UMDynamicImages
                 return false;
                 break;
         }
+    }
+
+    static private function _getUploadDir()
+    {
+        if ( is_multisite() ) {
+            switch_to_blog( get_main_site_id() );
+        }
+
+        $uploadDir = wp_upload_dir();
+
+        if ( is_multisite() ) {
+            restore_current_blog();
+        }
+
+        return $uploadDir;
     }
 
     static private function _checkImageCache( $cache, $source )
