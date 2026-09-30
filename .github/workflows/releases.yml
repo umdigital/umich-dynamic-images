@@ -18,7 +18,7 @@ jobs:
         id: tag
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - uses: "shivammathur/setup-php@v3"
+      - uses: "shivammathur/setup-php@v2"
         with:
           php-version: "latest"
       - uses: "ramsey/composer-install@v4"
